@@ -1163,6 +1163,11 @@ private fun prepareLaunch(context: Context, gameRoot: File, gpu: GpuProfile, scr
 
     check(File(gameRoot, BUILD_INFO).exists()) { "Missing $BUILD_INFO in $gameRoot. Copy it from your WoW install." }
     try {
+        CompanionAddon.install(context, gameRoot)
+    } catch (e: Exception) {
+        Timber.w(e, "Companion addon install skipped")
+    }
+    try {
         ensureGameConfig(gameRoot, screenSize, GameRegion.saved(context))
     } catch (e: Exception) {
         if (e.isPermissionDenied()) throw StorageAccessDeniedException(e)
@@ -1218,6 +1223,7 @@ private fun containerConfig(gameRoot: File, gpu: GpuProfile, screenSize: String)
         put("drives", "D:/storage/emulated/0/DownloadE:/data/data/app.wowforever/storageG:${gameRoot.path}")
         put("executablePath", "G:\\$FLAVOR_DIR\\$EXE_NAME")
         put("execArgs", "-d3d11")
+        put("externalDisplayMode", Container.EXTERNAL_DISPLAY_MODE_COMPANION)
         put("showFPS", true)
         // Keep running in the background: a suspended client drops its Battle.net connection, e.g. while the
         // player fetches an authenticator code from another app.
@@ -1287,8 +1293,13 @@ internal fun ensureGameConfig(root: File, screenSize: String, region: GameRegion
         configWtf.writeText(CONFIG_DEFAULTS.entries.joinToString("\n") { "SET ${it.key} ${it.value}" } + "\n")
     }
 
-    val forced = mapOf("gxApi" to CONFIG_DEFAULTS.getValue("gxApi"), "portal" to "\"${region?.name ?: portalOf(root)}\"") +
-        RESOLUTION_KEYS.associateWith { "\"$screenSize\"" }
+    val forced = mapOf(
+        "gxApi" to CONFIG_DEFAULTS.getValue("gxApi"),
+        "portal" to "\"${region?.name ?: portalOf(root)}\"",
+        // Let the bundled WFCompanion addon load even when its .toc interface version
+        // doesn't match this client build.
+        "checkAddonVersion" to "\"0\"",
+    ) + RESOLUTION_KEYS.associateWith { "\"$screenSize\"" }
     val forcedLines = forced.map { (key, value) -> "SET $key $value" }
     val original = configWtf.readLines()
     if (!original.containsAll(forcedLines)) {

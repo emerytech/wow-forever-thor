@@ -1,0 +1,8 @@
+## Interface: 11200
+## Title: WFCompanion
+## Notes: Publishes character data to the WoW Forever Android companion screen.
+## Author: emerytech
+## Version: 1.0
+## SavedVariables: WFCompanionJSON
+
+WFCompanion.lua

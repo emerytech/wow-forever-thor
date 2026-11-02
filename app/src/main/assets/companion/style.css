@@ -60,6 +60,27 @@ code { background: #000; padding: 1px 5px; border-radius: 4px; color: var(--gold
 .bags li .q { color: var(--sub); }
 .stamp { margin-top: 14px; color: var(--sub); font-size: 11px; }
 
+/* hotbar */
+.bar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.slot {
+  position: relative; aspect-ratio: 1 / 1; min-height: 72px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  color: var(--text); cursor: pointer; padding: 6px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  -webkit-user-select: none; user-select: none; transition: transform .06s, background .1s;
+}
+.slot:active { transform: scale(.94); background: var(--panel2); }
+.slot .k {
+  position: absolute; top: 3px; left: 5px; font-size: 11px; color: var(--gold);
+  font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.slot .n { font-size: 12px; line-height: 1.15; max-height: 2.3em; overflow: hidden; }
+.slot .c { position: absolute; bottom: 3px; right: 5px; font-size: 12px; color: var(--text); font-weight: 700; }
+.slot.empty { opacity: .45; }
+.slot.empty .n { color: var(--sub); }
+.slot.unusable { border-color: var(--hp); }
+.slot.unusable .n { color: #d98c86; }
+
 /* maps */
 .big { font-size: 18px; }
 .live-pos { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }

@@ -49,6 +49,32 @@ var TALENTS = {
   });
 })();
 
+// ---- hotbar ----
+var DEFAULT_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="];
+
+function pressSlot(key) {
+  if (window.WFHost && WFHost.pressSlot) WFHost.pressSlot(key);
+}
+
+// bar: optional array of {s,key,name,count,usable,oom} from the addon.
+function renderBar(bar) {
+  var grid = document.getElementById("bar-grid");
+  grid.innerHTML = "";
+  for (var i = 0; i < 12; i++) {
+    var info = (bar && bar[i]) || {};
+    var key = info.key && info.key.length ? info.key : DEFAULT_KEYS[i];
+    var name = info.name || "";
+    var btn = document.createElement("button");
+    btn.className = "slot" + (name ? "" : " empty") + (info.usable === false ? " unusable" : "");
+    btn.innerHTML =
+      '<span class="k">' + esc(key) + "</span>" +
+      '<span class="n">' + esc(name || "—") + "</span>" +
+      (info.count && info.count > 1 ? '<span class="c">' + info.count + "</span>" : "");
+    (function (k) { btn.addEventListener("click", function () { pressSlot(k); }); })(key);
+    grid.appendChild(btn);
+  }
+}
+
 // ---- character update, called from native via window.__wfUpdate(jsonString) ----
 function esc(s) {
   var d = document.createElement("div");
@@ -106,6 +132,9 @@ window.__wfUpdate = function (jsonString) {
 
   // talents for class
   renderTalents(data.className || data.class);
+
+  // hotbar
+  renderBar(data.bar);
 };
 
 function setBar(kind, cur, max, text) {
@@ -174,6 +203,7 @@ function addNote() {
 }
 
 renderNotes();
+renderBar(null); // show the default numbered bar immediately, before any addon data
 
 // tell native the DOM is ready to receive data
 if (window.WFHost && WFHost.ready) WFHost.ready();

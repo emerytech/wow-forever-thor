@@ -9,7 +9,8 @@
 <body>
   <header>
     <nav id="tabs">
-      <button class="tab active" data-tab="character">Character</button>
+      <button class="tab active" data-tab="hotbar">Hotbar</button>
+      <button class="tab" data-tab="character">Character</button>
       <button class="tab" data-tab="maps">Maps</button>
       <button class="tab" data-tab="talents">Talents</button>
       <button class="tab" data-tab="notes">Notes</button>
@@ -18,8 +19,16 @@
   </header>
 
   <main>
+    <!-- HOTBAR -->
+    <section id="hotbar" class="panel active">
+      <div id="bar-grid" class="bar-grid"></div>
+      <p class="hint">Tap a slot to fire its keybind in-game — works live. Names, counts and
+      keybinds come from the addon (refresh with &#x21bb; after a <code>/reload</code>); empty
+      slots fall back to the default bar keys <code>1</code>–<code>=</code>.</p>
+    </section>
+
     <!-- CHARACTER -->
-    <section id="character" class="panel active">
+    <section id="character" class="panel">
       <div id="char-empty" class="empty">
         <p>Waiting for the in-game addon.</p>
         <p class="hint">Install <b>WFCompanion</b> and type <code>/reload</code> in-game to publish your

@@ -16,6 +16,7 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import app.gamenative.R
 import app.gamenative.ui.screen.wow.GamePath
+import com.winlator.xserver.XKeycode
 import com.winlator.xserver.XServer
 import org.json.JSONObject
 import timber.log.Timber
@@ -111,6 +112,51 @@ class CompanionView(
         }
     }
 
+    /**
+     * Fires the keybind for a WoW action slot so a tap on the companion hotbar
+     * activates the spell/ability/item bound there. [binding] is a WoW binding
+     * string such as "1", "SHIFT-1", "CTRL-F2" — the hotkey the addon reports for
+     * the slot, or the default bar key. The press is live regardless of how fresh
+     * the slot labels are.
+     */
+    private fun pressBinding(binding: String) {
+        val parts = binding.uppercase().split("-")
+        val key = keycodeFor(parts.lastOrNull()) ?: return
+        val mods = parts.dropLast(1).mapNotNull { modifierFor(it) }
+        mainHandler.post {
+            mods.forEach { xServer.injectKeyPress(it) }
+            xServer.injectKeyPress(key)
+            // WoW needs a perceptible hold to register the action; release shortly after.
+            mainHandler.postDelayed({
+                xServer.injectKeyRelease(key)
+                mods.asReversed().forEach { xServer.injectKeyRelease(it) }
+            }, KEY_HOLD_MS)
+        }
+    }
+
+    private fun modifierFor(token: String): XKeycode? = when (token) {
+        "SHIFT" -> XKeycode.KEY_SHIFT_L
+        "CTRL" -> XKeycode.KEY_CTRL_L
+        "ALT" -> XKeycode.KEY_ALT_L
+        else -> null
+    }
+
+    private fun keycodeFor(token: String?): XKeycode? = when (token) {
+        "1" -> XKeycode.KEY_1; "2" -> XKeycode.KEY_2; "3" -> XKeycode.KEY_3
+        "4" -> XKeycode.KEY_4; "5" -> XKeycode.KEY_5; "6" -> XKeycode.KEY_6
+        "7" -> XKeycode.KEY_7; "8" -> XKeycode.KEY_8; "9" -> XKeycode.KEY_9
+        "0" -> XKeycode.KEY_0; "-" -> XKeycode.KEY_MINUS; "=" -> XKeycode.KEY_EQUAL
+        "F1" -> XKeycode.KEY_F1; "F2" -> XKeycode.KEY_F2; "F3" -> XKeycode.KEY_F3
+        "F4" -> XKeycode.KEY_F4; "F5" -> XKeycode.KEY_F5; "F6" -> XKeycode.KEY_F6
+        "F7" -> XKeycode.KEY_F7; "F8" -> XKeycode.KEY_F8; "F9" -> XKeycode.KEY_F9
+        "F10" -> XKeycode.KEY_F10; "F11" -> XKeycode.KEY_F11; "F12" -> XKeycode.KEY_F12
+        else -> if (token != null && token.length == 1 && token[0] in 'A'..'Z') {
+            runCatching { XKeycode.valueOf("KEY_${token}") }.getOrNull()
+        } else {
+            null
+        }
+    }
+
     private fun toggleKeyboard() {
         val show = keyboardView.visibility != View.VISIBLE
         keyboardView.visibility = if (show) View.VISIBLE else View.GONE
@@ -142,6 +188,16 @@ class CompanionView(
         fun refresh() {
             dataSource.pollNow()
         }
+
+        /** Tap on a hotbar slot: fire its keybind in-game. */
+        @JavascriptInterface
+        fun pressSlot(binding: String?) {
+            if (!binding.isNullOrBlank()) pressBinding(binding)
+        }
+    }
+
+    companion object {
+        private const val KEY_HOLD_MS = 60L
     }
 }
 

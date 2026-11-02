@@ -34,6 +34,43 @@ local function getPosition()
   return x, y
 end
 
+-- Hidden tooltip for reading the name of whatever sits in an action slot
+-- (works for spells, items and macros alike).
+local scanTip = CreateFrame("GameTooltip", "WFCompanionScanTip", nil, "GameTooltipTemplate")
+scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+
+local function actionName(slot)
+  scanTip:ClearLines()
+  local ok = pcall(function() scanTip:SetAction(slot) end)
+  if not ok then return nil end
+  local line = getglobal("WFCompanionScanTipTextLeft1")
+  local text = line and line:GetText()
+  if text == "" then return nil end
+  return text
+end
+
+-- Main action bar, slots 1-12. Each entry carries the keybind to fire (so a tap
+-- on the companion activates it) plus a label/count for display.
+local function collectBar()
+  local parts = {}
+  for slot = 1, 12 do
+    local key = GetBindingKey and GetBindingKey("ACTIONBUTTON" .. slot) or nil
+    local name = HasAction and HasAction(slot) and actionName(slot) or ""
+    local count = GetActionCount and GetActionCount(slot) or 0
+    local usable, oom = true, false
+    if IsUsableAction then usable, oom = IsUsableAction(slot) end
+    parts[#parts + 1] = "{"
+      .. '"s":' .. jnum(slot)
+      .. ',"key":' .. jstr(key or "")
+      .. ',"name":' .. jstr(name or "")
+      .. ',"count":' .. jnum(count)
+      .. ',"usable":' .. (usable and "true" or "false")
+      .. ',"oom":' .. (oom and "true" or "false")
+      .. "}"
+  end
+  return "[" .. table.concat(parts, ",") .. "]"
+end
+
 local function collectBags()
   local parts = {}
   local free = 0
@@ -68,6 +105,7 @@ local function publish()
   local x, y = getPosition()
   local money = GetMoney and GetMoney() or 0
   local bagsJson, free = collectBags()
+  local barJson = collectBar()
   local when = date and date("%H:%M:%S") or ""
 
   local fields = {
@@ -87,6 +125,7 @@ local function publish()
     '"money":' .. jnum(money),
     '"freeSlots":' .. jnum(free),
     '"bags":' .. bagsJson,
+    '"bar":' .. barJson,
     '"time":' .. jstr(when),
   }
   WFCompanionJSON = "{" .. table.concat(fields, ",") .. "}"

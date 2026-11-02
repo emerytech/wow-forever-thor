@@ -65,9 +65,15 @@ On single-screen devices it's a harmless no-op (no presentation display found).
 ## Build
 
 ```bash
+tools/fetch_components.sh                # REQUIRED: downloads Proton/DXVK/Turnip into assets
 export JAVA_HOME=<path-to-jdk-17>
-./gradlew :app:assembleModernDebug      # or assembleModernRelease with a keystore
+./gradlew :app:assembleModernDebug       # or assembleModernRelease with a keystore
 ```
+
+**`tools/fetch_components.sh` is mandatory before the first build.** The large binary
+components (`proton-*.wcp`, `dxvk-*.wcp`, the Turnip driver zips) are not in the repo; the
+script pulls them into `app/src/main/assets/bundled_components/` and checks their sha256.
+Skip it and the APK builds fine but fails at runtime with **"failed to load proton"**.
 
 Requires JDK 17, Android SDK platform 36, NDK 27.3.13750724 (see `app/build.gradle.kts`).
 APK lands in `app/build/outputs/apk/modern/debug/`.

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>WoW Forever Companion</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <nav id="tabs">
+      <button class="tab active" data-tab="character">Character</button>
+      <button class="tab" data-tab="maps">Maps</button>
+      <button class="tab" data-tab="talents">Talents</button>
+      <button class="tab" data-tab="notes">Notes</button>
+    </nav>
+    <button id="refresh" title="Re-read game data">&#x21bb;</button>
+  </header>
+
+  <main>
+    <!-- CHARACTER -->
+    <section id="character" class="panel active">
+      <div id="char-empty" class="empty">
+        <p>Waiting for the in-game addon.</p>
+        <p class="hint">Install <b>WFCompanion</b> and type <code>/reload</code> in-game to publish your
+        character. Classic flushes addon data on <code>/reload</code> or logout, so tap &#x21bb; after either.</p>
+      </div>
+      <div id="char-body" class="hidden">
+        <div class="char-head">
+          <div class="char-name"><span id="c-name">—</span></div>
+          <div class="char-sub"><span id="c-level">—</span> <span id="c-race">—</span> <span id="c-class">—</span></div>
+          <div class="char-zone"><span id="c-zone">—</span> <span id="c-coords" class="coords"></span></div>
+        </div>
+        <div class="bars">
+          <div class="bar hp"><div id="c-hp-fill" class="fill"></div><span id="c-hp-text" class="bar-text"></span></div>
+          <div class="bar mp"><div id="c-mp-fill" class="fill"></div><span id="c-mp-text" class="bar-text"></span></div>
+        </div>
+        <div class="money"><span id="c-gold">0</span>g <span id="c-silver">0</span>s <span id="c-copper">0</span>c</div>
+        <div class="bags">
+          <h3>Bags (<span id="c-slots">0</span> free)</h3>
+          <ul id="c-items"></ul>
+        </div>
+        <div class="stamp">Updated <span id="c-stamp">—</span></div>
+      </div>
+    </section>
+
+    <!-- MAPS -->
+    <section id="maps" class="panel">
+      <div class="live-pos">
+        <h3>Current position</h3>
+        <div id="m-zone" class="big">Unknown</div>
+        <div id="m-coords" class="coords big">—</div>
+      </div>
+      <h3>Zone reference</h3>
+      <div id="zone-list"></div>
+      <p class="hint">Offline reference. Live zone &amp; coordinates come from the addon.</p>
+    </section>
+
+    <!-- TALENTS -->
+    <section id="talents" class="panel">
+      <h3 id="t-head">Talents</h3>
+      <div id="t-trees" class="trees"></div>
+      <p class="hint">Trees shown for your class once the addon reports it. This is a planner scaffold —
+      extend <code>assets/companion/app.js</code> (TALENTS table) to add full tier data.</p>
+    </section>
+
+    <!-- NOTES -->
+    <section id="notes" class="panel">
+      <h3>Checklist</h3>
+      <div class="add-row">
+        <input id="note-input" type="text" placeholder="Add a task (attunement, daily, farm route)…" />
+        <button id="note-add">Add</button>
+      </div>
+      <ul id="note-list"></ul>
+      <p class="hint">Saved on this device.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

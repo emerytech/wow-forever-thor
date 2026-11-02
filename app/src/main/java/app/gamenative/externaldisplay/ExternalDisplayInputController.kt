@@ -26,13 +26,14 @@ class ExternalDisplayInputController(
     private val xServer: XServer,
     private val touchpadViewProvider: () -> TouchpadView?,
 ) {
-    enum class Mode { OFF, TOUCHPAD, KEYBOARD, HYBRID }
+    enum class Mode { OFF, TOUCHPAD, KEYBOARD, HYBRID, COMPANION }
 
     companion object {
         fun fromConfig(value: String?): Mode = when (value?.lowercase()) {
             Container.EXTERNAL_DISPLAY_MODE_TOUCHPAD -> Mode.TOUCHPAD
             Container.EXTERNAL_DISPLAY_MODE_KEYBOARD -> Mode.KEYBOARD
             Container.EXTERNAL_DISPLAY_MODE_HYBRID -> Mode.HYBRID
+            Container.EXTERNAL_DISPLAY_MODE_COMPANION -> Mode.COMPANION
             else -> Mode.OFF
         }
     }
@@ -200,6 +201,13 @@ private class ExternalInputPresentation(
                     touchpadViewProvider = touchpadViewProvider,
                 )
                 setContentView(hybrid)
+            }
+            ExternalDisplayInputController.Mode.COMPANION -> {
+                val companion = CompanionView(
+                    context = context,
+                    xServer = xServer,
+                )
+                setContentView(companion)
             }
             else -> {
                 setContentView(FrameLayout(context))
